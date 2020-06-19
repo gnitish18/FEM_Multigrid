@@ -10,7 +10,7 @@ function b = project(a)
             end
         end
     end
-    R = 0.5*I';
+    R = 0.5*(I');
     b = R*a*I;
 end
     
