@@ -1,7 +1,15 @@
-function b = Project_FineToCoarse(a)
-    
-    [n,~] = size(a);            % Find the size of the fine stiffness matrix
-    I(1:n,1:floor(n/2)) = 0;    % Define the Projection Operator matrix
+%% Function to project a given Fine-Grid matrix to Coarse-Grid
+%   Input Parameters: 
+%   * A - Fine Grid Matrix
+%   Output Paramerter:
+%   * B - Coarse Grid Matrix
+%%
+
+function B = Project_FineToCoarse(A)
+    % Find the size of the fine stiffness matrix
+    [n,~] = size(A);
+    % Define the Projection Operator matrix
+    I(1:n,1:floor(n/2)) = 0;
     
     % Initialize the Projection Operator matrix as tri-diagonal
     for i = 1:floor(n/2)            
@@ -14,8 +22,7 @@ function b = Project_FineToCoarse(a)
         end
     end
     
-    R = 0.5*(I');               % Initialize Restriction matrix
-    b = R*a*I;                  % Project the fine stiffness matrix to coarse
+    R = 0.5*(I');   % Initialize Restriction matrix
+    B = R*A*I;      % Project the fine stiffness matrix to coarse
 
-end
-    
+end 

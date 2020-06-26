@@ -1,19 +1,20 @@
+%% Program to determine the deflection of a Cantilever-Beam under Uniform Distributed Load using Finite Element Method (FEM) and solved using Multigrid Gauss-Seidel method
+%%
+
 clear; 
 close all; 
 clc;
 
 % Get the number of elements
-m = input("Enter the number of elements (even): ");
+disp("Grid independency is achieved at 30 elements");
+disp("However, feel free to test with any number of elements");
+m = input("Enter the number of elements: ");
 
 % If the number of elements is odd, makes it even
 % to satisfy multigrid transformation matrix sizes
-if mod(m,2)
-    m=m+1;
-    string = sprintf('The number of elements has been increased to %d as your value is not even', m);
-    disp(string)
-end
+m = m + mod(m,2);
 
-disp("Initializing... ");
+fprintf("Initializing... ");
 n     = m+1;                    % Initialize number of nodes
 l     = 5;                      % Define length of the beam
 h     = l/m;                    % Length of each element
@@ -35,19 +36,25 @@ for i = 1:m
     xi = i*h; 
     xj = xi-h;
     
+    % Initialize Common term
+    t = (xi^4-xj^4)/12 - (xi^3-xj^3)/3 + (xi^2-xj^2)/2;
     % Initialize the terms
-    t1 = -xj^3/3 + xj^2 - xj + 1/h*((xi^4-xj^4)/12 - (xi^3-xj^3)/3 + (xi^2-xj^2)/2);
-    t2 = xi^3/3 - xi^2 + xi - 1/h*((xi^4-xj^4)/12 - (xi^3-xj^3)/3 + (xi^2-xj^2)/2);
+    T1 = -xj^3/3 + xj^2 - xj + 1/h*t;
+    T2 = xi^3/3 - xi^2 + xi - 1/h*t;
     
     % Update the Force Matrix
-    F(i)   = F(i)   + 150*t1;
-    F(i+1) = F(i+1) + 150*t2;
+    F(i)   = F(i)   + 150*T1;
+    F(i+1) = F(i+1) + 150*T2;
 end
 
-F(n) = F(n) + (-150*l + 150*l^2 - 50*l^3);          % Add last term of force matrix - slope
-U = Multigrid_TwoGrid(Ah, F);                       % Solve the equation using Multigrid Gauss-Seidel
+% Add last term of force matrix - slope
+F(n) = F(n) + (-150*l + 150*l^2 - 50*l^3);
+fprintf(" Done");
+pause(0.3)
+fprintf(repmat('\b', 1, 21));
 
-disp("Displaying Results...")
-figure(1);                                          % Initialize the plot name
-X = (0:m)*h;                                        % Define the x coordinates in terms of length of the beam
-plot(X, U);                                         % Plot the deflection of the beam vs its nadal location
+% Solve the equation using Multigrid Gauss-Seidel
+U = Multigrid_TwoGrid(Ah, F);
+
+% Display the results and analysis
+Results(U);
